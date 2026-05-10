@@ -1,0 +1,80 @@
+<!DOCTYPE html>
+<html lang="es-HN">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title><%= titulo %> | Mr. Fuel</title>
+  <link rel="stylesheet" href="/css/style.css">
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+</head>
+<body>
+  <%- include('../partials/header') %>
+  
+  <main class="main-content">
+    <div class="page-header">
+      <h1 class="page-title">
+        <i class="fas fa-gas-pump"></i> Estaciones de Servicio
+      </h1>
+      <% if (user.userRole === 'admin' || user.userRole === 'supervisor') { %>
+      <a href="/estaciones/nueva" class="btn btn-primary">
+        <i class="fas fa-plus"></i> Nueva Estación
+      </a>
+      <% } %>
+    </div>
+    
+    <div class="card">
+      <% if (estaciones.length === 0) { %>
+        <div style="text-align: center; padding: 40px;">
+          <div style="font-size: 64px; color: #ccc; margin-bottom: 15px;">
+            <i class="fas fa-gas-pump"></i>
+          </div>
+          <p class="text-muted">No hay estaciones registradas aún.</p>
+          <% if (user.userRole === 'admin') { %>
+          <a href="/estaciones/nueva" class="btn btn-primary" style="margin-top: 15px;">
+            <i class="fas fa-plus"></i> Crear Primera Estación
+          </a>
+          <% } %>
+        </div>
+      <% } else { %>
+        <div class="table-responsive">
+          <table>
+            <thead>
+              <tr>
+                <th>Código</th>
+                <th>Nombre</th>
+                <th>Ciudad</th>
+                <th>Departamento</th>
+                <th>Encargado</th>
+                <th>Teléfono</th>
+                <th>Estado</th>
+              </tr>
+            </thead>
+            <tbody>
+              <% estaciones.forEach(est => { %>
+              <tr>
+                <td><strong><%= est.codigo %></strong></td>
+                <td><%= est.nombre %></td>
+                <td><%= est.ciudad %></td>
+                <td><%= est.departamento %></td>
+                <td><%= est.encargado || '-' %></td>
+                <td><%= est.telefono || '-' %></td>
+                <td>
+                  <% if (est.activo) { %>
+                    <span class="badge badge-success">Activa</span>
+                  <% } else { %>
+                    <span class="badge badge-danger">Inactiva</span>
+                  <% } %>
+                </td>
+              </tr>
+              <% }); %>
+            </tbody>
+          </table>
+        </div>
+      <% } %>
+    </div>
+  </main>
+  
+  <%- include('../partials/footer') %>
+  <script src="/js/main.js"></script>
+</body>
+</html>
