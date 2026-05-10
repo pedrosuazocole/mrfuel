@@ -2,7 +2,7 @@ const express = require('express');
 const router = express.Router();
 const bcrypt = require('bcryptjs');
 const { isAuthenticated, isAdmin } = require('../middleware/auth');
-const { allAsync, runAsync } = require('../config/database');
+const { allAsync, getAsync, runAsync } = require('../config/database');
 
 router.use(isAuthenticated);
 router.use(isAdmin);
