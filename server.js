@@ -35,10 +35,15 @@ if (!fs.existsSync(uploadsDir)) {
 // INICIALIZAR BASE DE DATOS
 // ===================================
 
-// En producción, la BD está en /tmp, en desarrollo en ./database
-const dbPath = process.env.NODE_ENV === 'production' 
-  ? '/tmp/mrfuel.db'
-  : path.join(__dirname, 'database', 'mrfuel.db');
+// Detectar ruta de la BD según el entorno
+let dbPath;
+if (process.env.RAILWAY_VOLUME_MOUNT_PATH) {
+  dbPath = path.join(process.env.RAILWAY_VOLUME_MOUNT_PATH, 'mrfuel.db');
+} else if (process.env.NODE_ENV === 'production') {
+  dbPath = '/tmp/mrfuel.db';
+} else {
+  dbPath = path.join(__dirname, 'database', 'mrfuel.db');
+}
 
 const dbExists = fs.existsSync(dbPath);
 

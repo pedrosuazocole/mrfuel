@@ -9,9 +9,14 @@ const { db } = require('../config/database');
 const path = require('path');
 
 // Mostrar ruta de la base de datos
-const dbPath = process.env.NODE_ENV === 'production' 
-  ? '/tmp/mrfuel.db' 
-  : path.join(__dirname, '..', 'database', 'mrfuel.db');
+let dbPath;
+if (process.env.RAILWAY_VOLUME_MOUNT_PATH) {
+  dbPath = path.join(process.env.RAILWAY_VOLUME_MOUNT_PATH, 'mrfuel.db');
+} else if (process.env.NODE_ENV === 'production') {
+  dbPath = '/tmp/mrfuel.db';
+} else {
+  dbPath = path.join(__dirname, '..', 'database', 'mrfuel.db');
+}
 
 console.log(`📂 Inicializando base de datos en: ${dbPath}`);
 console.log('🚀 Iniciando creación de base de datos...\n');

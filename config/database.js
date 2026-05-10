@@ -7,26 +7,33 @@ const sqlite3 = require('sqlite3').verbose();
 const path = require('path');
 const fs = require('fs');
 
-// Ruta de la base de datos - Railway necesita un directorio con permisos de escritura
+// Ruta de la base de datos
 let dbPath;
 
-if (process.env.NODE_ENV === 'production') {
-  // En producción (Railway), usar /tmp que tiene permisos de escritura
+// Railway monta volúmenes en rutas específicas
+// Verificar si existe variable RAILWAY_VOLUME_MOUNT_PATH
+if (process.env.RAILWAY_VOLUME_MOUNT_PATH) {
+  // Railway con volumen persistente
+  dbPath = path.join(process.env.RAILWAY_VOLUME_MOUNT_PATH, 'mrfuel.db');
+  console.log('📦 Usando volumen de Railway para persistencia');
+} else if (process.env.NODE_ENV === 'production') {
+  // Producción sin volumen (datos no persistentes)
   dbPath = '/tmp/mrfuel.db';
+  console.log('⚠️  Usando /tmp (datos NO persistentes)');
 } else {
-  // En desarrollo, usar la carpeta local
+  // Desarrollo local
   dbPath = process.env.DB_PATH || path.join(__dirname, '..', 'database', 'mrfuel.db');
 }
 
 console.log(`📂 Ruta de base de datos: ${dbPath}`);
 
-// Crear directorio si no existe (solo para desarrollo)
-if (process.env.NODE_ENV !== 'production') {
-  const dbDir = path.dirname(dbPath);
-  if (!fs.existsSync(dbDir)) {
-    fs.mkdirSync(dbDir, { recursive: true });
-  }
+// Crear directorio si no existe
+const dbDir = path.dirname(dbPath);
+if (!fs.existsSync(dbDir)) {
+  fs.mkdirSync(dbDir, { recursive: true });
+  console.log(`✅ Directorio creado: ${dbDir}`);
 }
+
 
 // Crear conexión a la base de datos
 const db = new sqlite3.Database(dbPath, (err) => {
