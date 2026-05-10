@@ -15,11 +15,13 @@ const { iniciarCronJobs } = require('./utils/cron');
 const app = express();
 const PORT = process.env.PORT || 3000;
 
-// Crear directorio de base de datos si no existe
-const dbDir = path.join(__dirname, 'database');
-if (!fs.existsSync(dbDir)) {
-  fs.mkdirSync(dbDir, { recursive: true });
-  console.log('✅ Directorio de base de datos creado');
+// Crear directorio de base de datos SOLO en desarrollo
+if (process.env.NODE_ENV !== 'production') {
+  const dbDir = path.join(__dirname, 'database');
+  if (!fs.existsSync(dbDir)) {
+    fs.mkdirSync(dbDir, { recursive: true });
+    console.log('✅ Directorio de base de datos creado');
+  }
 }
 
 // Crear directorio de uploads si no existe
@@ -33,23 +35,18 @@ if (!fs.existsSync(uploadsDir)) {
 // INICIALIZAR BASE DE DATOS
 // ===================================
 
-const dbPath = path.join(__dirname, 'database', 'mrfuel.db');
+// En producción, la BD está en /tmp, en desarrollo en ./database
+const dbPath = process.env.NODE_ENV === 'production' 
+  ? '/tmp/mrfuel.db'
+  : path.join(__dirname, 'database', 'mrfuel.db');
+
 const dbExists = fs.existsSync(dbPath);
 
 if (!dbExists) {
   console.log('⚠️  Base de datos no encontrada. Inicializando...');
-  
-  // Ejecutar script de inicialización
-  const { exec } = require('child_process');
-  exec('node utils/initDB.js', (error, stdout, stderr) => {
-    if (error) {
-      console.error('❌ Error al inicializar BD:', error);
-    } else {
-      console.log(stdout);
-    }
-  });
+  console.log(`📂 Creando BD en: ${dbPath}`);
 } else {
-  console.log('✅ Base de datos encontrada');
+  console.log(`✅ Base de datos encontrada en: ${dbPath}`);
 }
 
 // ===================================

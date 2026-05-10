@@ -1,5 +1,31 @@
 # 🚂 GUÍA DE DESPLIEGUE EN RAILWAY
 
+## ⚠️ IMPORTANTE: PERSISTENCIA DE DATOS
+
+**SQLite en Railway NO es persistente por defecto.**
+
+La base de datos se guarda en `/tmp/mrfuel.db` que es **efímero**:
+- ✅ Funciona perfecto para pruebas
+- ❌ Los datos se pierden al reiniciar el servidor
+- ❌ No recomendado para producción real
+
+### Soluciones para Producción:
+
+**Opción 1: PostgreSQL en Railway (Recomendado)**
+- Railway ofrece PostgreSQL con persistencia
+- Backups automáticos
+- Más escalable
+
+**Opción 2: Railway Volumes (Beta)**
+- Montaje persistente de archivos
+- Mantiene SQLite entre reinicios
+
+**Opción 3: Solo para Desarrollo/Demo**
+- Usar tal cual está
+- Aceptar pérdida de datos en reinicios
+
+---
+
 ## 📋 Requisitos Previos
 
 1. Cuenta en Railway: https://railway.app

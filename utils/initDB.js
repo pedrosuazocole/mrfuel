@@ -6,7 +6,14 @@
 require('dotenv').config();
 const bcrypt = require('bcryptjs');
 const { db } = require('../config/database');
+const path = require('path');
 
+// Mostrar ruta de la base de datos
+const dbPath = process.env.NODE_ENV === 'production' 
+  ? '/tmp/mrfuel.db' 
+  : path.join(__dirname, '..', 'database', 'mrfuel.db');
+
+console.log(`📂 Inicializando base de datos en: ${dbPath}`);
 console.log('🚀 Iniciando creación de base de datos...\n');
 
 // ESQUEMA DE BASE DE DATOS
