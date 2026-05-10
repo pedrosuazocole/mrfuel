@@ -99,6 +99,8 @@ exports.mostrarFormularioNueva = async (req, res) => {
  * Crear nueva auditoría
  */
 exports.crearAuditoria = async (req, res) => {
+  console.log('📝 Iniciando creación de auditoría...');
+  
   try {
     const {
       estacion_id,
@@ -121,13 +123,18 @@ exports.crearAuditoria = async (req, res) => {
       recomendaciones
     } = req.body;
     
+    console.log('📊 Datos recibidos:', { estacion_id, fecha_visita, hora_visita });
+    
     // Validaciones
     if (!estacion_id || !fecha_visita || !hora_visita) {
+      console.log('❌ Validación fallida');
       return res.status(400).json({
         success: false,
         mensaje: 'Estación, fecha y hora son obligatorios'
       });
     }
+    
+    console.log('✅ Validaciones pasadas');
     
     // Calcular calificación general (promedio de todos los criterios)
     const criterios = [
@@ -143,7 +150,10 @@ exports.crearAuditoria = async (req, res) => {
       criterios.reduce((a, b) => a + b, 0) / criterios.length
     );
     
+    console.log('📊 Calificación calculada:', calificacion_general);
+    
     // Insertar auditoría
+    console.log('💾 Insertando en base de datos...');
     const resultado = await runAsync(`
       INSERT INTO auditorias (
         estacion_id, auditor_id, fecha_visita, hora_visita,
@@ -168,9 +178,11 @@ exports.crearAuditoria = async (req, res) => {
     ]);
     
     const auditoriaId = resultado.lastID;
+    console.log('✅ Auditoría insertada con ID:', auditoriaId);
     
     // Procesar fotos subidas
     if (req.files && req.files.length > 0) {
+      console.log(`📸 Procesando ${req.files.length} fotos...`);
       for (const file of req.files) {
         const categoria = file.fieldname.replace('foto_', '');
         const rutaRelativa = `/uploads/auditorias/${file.filename}`;
@@ -180,17 +192,21 @@ exports.crearAuditoria = async (req, res) => {
           VALUES (?, ?, ?, ?)
         `, [auditoriaId, categoria, rutaRelativa, `Foto de ${categoria}`]);
       }
+      console.log('✅ Fotos guardadas');
     }
     
     // Obtener datos para notificación
+    console.log('📧 Preparando notificación...');
     const auditoria = await getAsync('SELECT * FROM auditorias WHERE id = ?', [auditoriaId]);
     const estacion = await getAsync('SELECT * FROM estaciones WHERE id = ?', [estacion_id]);
     const auditor = await getAsync('SELECT * FROM usuarios WHERE id = ?', [req.session.userId]);
     
     // Enviar notificación por email (asíncrono, no bloquea respuesta)
     if (auditoria && estacion && auditor) {
+      console.log('📤 Enviando email...');
       enviarNotificacionAuditoria(auditoria, estacion, auditor)
-        .catch(err => console.error('Error al enviar notificación:', err));
+        .then(() => console.log('✅ Email enviado'))
+        .catch(err => console.error('⚠️  Error al enviar notificación:', err.message));
     }
     
     console.log(`✅ Auditoría creada: ID ${auditoriaId} - ${estacion ? estacion.nombre : 'N/A'} (${calificacion_general}%)`);
@@ -203,8 +219,10 @@ exports.crearAuditoria = async (req, res) => {
     });
     
   } catch (error) {
-    console.error('Error al crear auditoría:', error);
-    console.error('Stack trace:', error.stack);
+    console.error('❌ ERROR AL CREAR AUDITORÍA:');
+    console.error('Mensaje:', error.message);
+    console.error('Stack:', error.stack);
+    console.error('Código:', error.code);
     res.status(500).json({
       success: false,
       mensaje: 'Error al registrar la auditoría: ' + error.message
