@@ -188,10 +188,12 @@ exports.crearAuditoria = async (req, res) => {
     const auditor = await getAsync('SELECT * FROM usuarios WHERE id = ?', [req.session.userId]);
     
     // Enviar notificación por email (asíncrono, no bloquea respuesta)
-    enviarNotificacionAuditoria(auditoria, estacion, auditor)
-      .catch(err => console.error('Error al enviar notificación:', err));
+    if (auditoria && estacion && auditor) {
+      enviarNotificacionAuditoria(auditoria, estacion, auditor)
+        .catch(err => console.error('Error al enviar notificación:', err));
+    }
     
-    console.log(`✅ Auditoría creada: ID ${auditoriaId} - ${estacion.nombre} (${calificacion_general}%)`);
+    console.log(`✅ Auditoría creada: ID ${auditoriaId} - ${estacion ? estacion.nombre : 'N/A'} (${calificacion_general}%)`);
     
     res.json({
       success: true,
@@ -202,9 +204,10 @@ exports.crearAuditoria = async (req, res) => {
     
   } catch (error) {
     console.error('Error al crear auditoría:', error);
+    console.error('Stack trace:', error.stack);
     res.status(500).json({
       success: false,
-      mensaje: 'Error al registrar la auditoría'
+      mensaje: 'Error al registrar la auditoría: ' + error.message
     });
   }
 };
