@@ -187,21 +187,27 @@ db.exec(schema, async (err) => {
     console.log('═══════════════════════════════════════════════');
     console.log('🎉 BASE DE DATOS INICIALIZADA CORRECTAMENTE');
     console.log('═══════════════════════════════════════════════');
-    console.log('\n📌 CREDENCIALES DE ACCESO:');
-    console.log('   Email: admin@texaco.com');
-    console.log('   Password: admin123');
-    console.log('\n⚠️  IMPORTANTE: Cambia la contraseña después del primer login\n');
+    
+    if (process.env.NODE_ENV !== 'production') {
+      console.log('\n📌 CREDENCIALES DE ACCESO:');
+      console.log('   Email: admin@texaco.com');
+      console.log('   Password: admin123');
+      console.log('\n⚠️  IMPORTANTE: Cambia la contraseña después del primer login\n');
+    }
     
     // Cerrar conexión
-    setTimeout(() => {
-      db.close((err) => {
-        if (err) console.error('Error al cerrar DB:', err.message);
+    db.close((err) => {
+      if (err) console.error('Error al cerrar DB:', err.message);
+      // No hacer exit en producción para que Railway pueda continuar
+      if (process.env.NODE_ENV !== 'production') {
         process.exit(0);
-      });
-    }, 1000);
+      }
+    });
     
   } catch (error) {
     console.error('❌ Error en datos iniciales:', error.message);
-    process.exit(1);
+    if (process.env.NODE_ENV !== 'production') {
+      process.exit(1);
+    }
   }
 });

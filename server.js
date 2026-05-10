@@ -9,10 +9,48 @@ require('dotenv').config();
 const express = require('express');
 const session = require('express-session');
 const path = require('path');
+const fs = require('fs');
 const { iniciarCronJobs } = require('./utils/cron');
 
 const app = express();
 const PORT = process.env.PORT || 3000;
+
+// Crear directorio de base de datos si no existe
+const dbDir = path.join(__dirname, 'database');
+if (!fs.existsSync(dbDir)) {
+  fs.mkdirSync(dbDir, { recursive: true });
+  console.log('✅ Directorio de base de datos creado');
+}
+
+// Crear directorio de uploads si no existe
+const uploadsDir = path.join(__dirname, 'public', 'uploads', 'auditorias');
+if (!fs.existsSync(uploadsDir)) {
+  fs.mkdirSync(uploadsDir, { recursive: true });
+  console.log('✅ Directorio de uploads creado');
+}
+
+// ===================================
+// INICIALIZAR BASE DE DATOS
+// ===================================
+
+const dbPath = path.join(__dirname, 'database', 'mrfuel.db');
+const dbExists = fs.existsSync(dbPath);
+
+if (!dbExists) {
+  console.log('⚠️  Base de datos no encontrada. Inicializando...');
+  
+  // Ejecutar script de inicialización
+  const { exec } = require('child_process');
+  exec('node utils/initDB.js', (error, stdout, stderr) => {
+    if (error) {
+      console.error('❌ Error al inicializar BD:', error);
+    } else {
+      console.log(stdout);
+    }
+  });
+} else {
+  console.log('✅ Base de datos encontrada');
+}
 
 // ===================================
 // CONFIGURACIÓN
