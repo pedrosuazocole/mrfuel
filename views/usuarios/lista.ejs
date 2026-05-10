@@ -40,6 +40,7 @@
                 <th>Teléfono</th>
                 <th>Estado</th>
                 <th>Fecha Creación</th>
+                <th>Acciones</th>
               </tr>
             </thead>
             <tbody>
@@ -66,6 +67,16 @@
                   <% } %>
                 </td>
                 <td><%= new Date(usr.fecha_creacion).toLocaleDateString('es-HN') %></td>
+                <td>
+                  <a href="/usuarios/editar/<%= usr.id %>" class="btn btn-sm btn-secondary" title="Editar">
+                    <i class="fas fa-edit"></i>
+                  </a>
+                  <% if (usr.id !== user.userId) { %>
+                  <button class="btn btn-sm btn-secondary" data-eliminar-usuario="<%= usr.id %>" title="Eliminar">
+                    <i class="fas fa-trash"></i>
+                  </button>
+                  <% } %>
+                </td>
               </tr>
               <% }); %>
             </tbody>
@@ -172,6 +183,41 @@
       } catch (error) {
         console.error('Error:', error);
         alert('❌ Error al crear usuario');
+      }
+    });
+  </script>
+  
+  <script>
+    // Eliminar usuario
+    document.addEventListener('click', async (e) => {
+      if (e.target.matches('[data-eliminar-usuario]') || e.target.closest('[data-eliminar-usuario]')) {
+        e.preventDefault();
+        
+        const btn = e.target.closest('[data-eliminar-usuario]');
+        const usuarioId = btn.dataset.eliminarUsuario;
+        
+        if (!confirm('¿Estás seguro de eliminar este usuario? Esta acción no se puede deshacer.')) {
+          return;
+        }
+        
+        try {
+          const response = await fetch(`/usuarios/eliminar/${usuarioId}`, {
+            method: 'DELETE',
+            headers: { 'Content-Type': 'application/json' }
+          });
+          
+          const result = await response.json();
+          
+          if (result.success) {
+            alert('✅ Usuario eliminado correctamente');
+            window.location.reload();
+          } else {
+            alert('❌ Error: ' + result.mensaje);
+          }
+        } catch (error) {
+          console.error('Error:', error);
+          alert('❌ Error al eliminar usuario');
+        }
       }
     });
   </script>
