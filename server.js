@@ -92,6 +92,8 @@ app.use((req, res, next) => {
 const authRoutes = require('./routes/auth');
 const dashboardRoutes = require('./routes/dashboard');
 const auditoriasRoutes = require('./routes/auditorias');
+const auditoriasV2Routes = require('./routes/auditorias-v2');
+const adminRoutes = require('./routes/admin');
 const estacionesRoutes = require('./routes/estaciones');
 const usuariosRoutes = require('./routes/usuarios');
 
@@ -101,6 +103,8 @@ app.use('/', authRoutes);
 // Rutas protegidas
 app.use('/dashboard', dashboardRoutes);
 app.use('/auditorias', auditoriasRoutes);
+app.use('/auditorias-v2', auditoriasV2Routes);
+app.use('/admin', adminRoutes);
 app.use('/estaciones', estacionesRoutes);
 app.use('/usuarios', usuariosRoutes);
 

@@ -10,8 +10,8 @@
         <i class="fas fa-home"></i> Dashboard
       </a></li>
       
-      <li><a href="/auditorias" class="<%= currentPath.startsWith('/auditorias') ? 'active' : '' %>">
-        <i class="fas fa-clipboard-check"></i> Auditorías
+      <li><a href="/auditorias-v2" class="<%= currentPath.startsWith('/auditorias') ? 'active' : '' %>">
+        <i class="fas fa-clipboard-check"></i> Auditorías v2.0
       </a></li>
       
       <li><a href="/estaciones" class="<%= currentPath.startsWith('/estaciones') ? 'active' : '' %>">
@@ -21,6 +21,9 @@
       <% if (user.userRole === 'admin') { %>
       <li><a href="/usuarios" class="<%= currentPath.startsWith('/usuarios') ? 'active' : '' %>">
         <i class="fas fa-users"></i> Usuarios
+      </a></li>
+      <li><a href="/admin/categorias" class="<%= currentPath.startsWith('/admin') ? 'active' : '' %>">
+        <i class="fas fa-cog"></i> Checklist
       </a></li>
       <% } %>
     </ul>
