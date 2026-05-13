@@ -1,1 +1,1 @@
-web: node utils/initDB.js && node server.js
+web: node verify-v2.js && node utils/migrateToV2.js && node server.js

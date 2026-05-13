@@ -49,7 +49,7 @@ exports.mostrarFormularioNueva = async (req, res) => {
       'SELECT * FROM estaciones WHERE activo = 1 ORDER BY nombre ASC'
     );
     
-    // Obtener categorías con sus ítems
+    // Obtener todas las categorías con sus ítems
     const categorias = await allAsync(
       'SELECT * FROM categorias WHERE activo = 1 ORDER BY orden ASC'
     );
@@ -62,11 +62,42 @@ exports.mostrarFormularioNueva = async (req, res) => {
       );
     }
     
+    // Crear grupos independientes: PISTA y TIENDA (con sus subcategorías)
+    const grupos = [];
+    
+    // GRUPO 1: PISTA (solo PISTA)
+    const pista = categorias.find(c => c.nombre === 'PISTA');
+    if (pista) {
+      grupos.push({
+        id: 'pista',
+        nombre: 'PISTA',
+        categorias: [pista]
+      });
+    }
+    
+    // GRUPO 2: TIENDA (incluye TIENDA, BODEGA, COCINA)
+    const tienda = categorias.find(c => c.nombre === 'TIENDA');
+    const bodega = categorias.find(c => c.nombre === 'BODEGA');
+    const cocina = categorias.find(c => c.nombre === 'COCINA');
+    
+    const categoriaTienda = [];
+    if (tienda) categoriaTienda.push(tienda);
+    if (bodega) categoriaTienda.push(bodega);
+    if (cocina) categoriaTienda.push(cocina);
+    
+    if (categoriaTienda.length > 0) {
+      grupos.push({
+        id: 'tienda',
+        nombre: 'TIENDA',
+        categorias: categoriaTienda
+      });
+    }
+    
     res.render('auditorias-v2/nueva', {
       user: req.session,
       titulo: 'Nueva Auditoría',
       estaciones,
-      categorias
+      grupos
     });
   } catch (error) {
     console.error('Error:', error);
@@ -418,6 +449,28 @@ exports.obtenerEstadisticas = async (req, res) => {
   } catch (error) {
     console.error('Error:', error);
     res.status(500).json({ error: 'Error al obtener estadísticas' });
+  }
+};
+
+/**
+ * Obtener números de WhatsApp activos para envío
+ */
+exports.obtenerNumerosWhatsApp = async (req, res) => {
+  try {
+    const numeros = await allAsync(
+      'SELECT id, nombre, numero, cargo FROM whatsapp_numeros WHERE activo = 1 ORDER BY nombre ASC'
+    );
+    
+    res.json({
+      success: true,
+      numeros
+    });
+  } catch (error) {
+    console.error('Error:', error);
+    res.status(500).json({
+      success: false,
+      mensaje: 'Error al obtener números de WhatsApp'
+    });
   }
 };
 
